@@ -1,12 +1,12 @@
 /*
 ||
-|| @file DosingPumpController
+|| @file DoserPumpController
 || @version 3.1
 || @author Gabriel F. Campolina
 || @contact gabrielfc@gmail.com
 ||
 || @description
-|| | This library provides a amazing and simple dosing pump controller. 
+|| | This library provides a simple doser pump controller. 
 || | To use all the implementation, I recommend use the following hardware:
 || | - Arduino UNO R3
 || | - Keypad 4x3
@@ -99,7 +99,10 @@ char weekDay[4];
 byte tMSB, tLSB;
 float my_temp;
 char my_array[100];
-
+boolean turnOnPump1 = false;
+boolean turnOnPump2 = false;
+boolean turnOnPump3 = false;
+boolean turnOnPump4 = false;
 
 //Menu setup
 int countMenu = MENU_ITEM_MAIN_MENU;
@@ -112,7 +115,7 @@ String menuItem[] =
     "Setup - Pump 3",
     "Setup - Pump 4",
     "Setup - Time",
-    "Calibration"
+    "Calibrate/Exit *"
 };
 
 char valueMatrix[MENU_FUNCTION][MENU_VALUE] = 
@@ -147,11 +150,12 @@ void loop()
     showMenu(keyPress);
   }
 
+  
+
   if(countMenu == MENU_ITEM_MAIN_MENU)
   {
     showMainMenu();
     checkRelayStatus();
-    delay(1000);
   }
 }
 
@@ -212,7 +216,7 @@ void showMainMenu()
   lcd.print(get3231Temp());
   
   lcd.setCursor(0,1);  
-  lcd.print("Menu -> Press #");
+  lcd.print("Menu -> Type #");
 }
 
 
@@ -240,6 +244,26 @@ void handlerKeyPress(int keyPress)
   }
   if(keyPress == '#')
   {
+      writeMatrixInEEPROM();
+
+       if(turnOnPump1){
+         turnOnPump1 = false;
+         turnOffRelay(DIGITAL_PIN_RELAY_1);
+      }
+      if(turnOnPump2){
+         turnOnPump2 = false;
+         turnOffRelay(DIGITAL_PIN_RELAY_2);
+      }
+      if(turnOnPump3){
+         turnOnPump3 = false;
+         turnOffRelay(DIGITAL_PIN_RELAY_3);
+      }
+      if(turnOnPump4){
+         turnOnPump4 = false;
+         turnOffRelay(DIGITAL_PIN_RELAY_4);
+      }
+      
+      
       if(countMenu == (MENU_FUNCTION-1))
       {
         countMenu = 0;
@@ -254,12 +278,39 @@ void handlerKeyPress(int keyPress)
       if(countMenu == MENU_ITEM_TIME)
       {        
           updateTimeInRTC();
+      }      
+      else if(countMenu == MENU_ITEM_PUMP_1)
+      {
+         if(!turnOnPump1){
+            turnOnPump1 = true;        
+            turnOnRelay(DIGITAL_PIN_RELAY_1);
+         }
       }
-      writeMatrixInEEPROM();
-
-      //Come back to The main menu
-      countMenu = MENU_ITEM_MAIN_MENU;
-      countKey = 0;
+      else if(countMenu == MENU_ITEM_PUMP_2)
+      {
+         if(!turnOnPump2){
+            turnOnPump2 = true;        
+            turnOnRelay(DIGITAL_PIN_RELAY_2);
+         }
+      }
+      else if(countMenu == MENU_ITEM_PUMP_3)
+      {
+         if(!turnOnPump3){
+            turnOnPump3 = true;        
+            turnOnRelay(DIGITAL_PIN_RELAY_3);
+         }
+      }
+      else if(countMenu == MENU_ITEM_PUMP_4)
+      {
+         if(!turnOnPump4){
+            turnOnPump4 = true;        
+            turnOnRelay(DIGITAL_PIN_RELAY_4);
+         }
+      }else{
+        //Come back to The main menu
+        countMenu = MENU_ITEM_MAIN_MENU;
+        countKey = 0;
+      }
     }else
     {
       valueMatrix[countMenu][countKey]  = keyPress;
