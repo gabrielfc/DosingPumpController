@@ -33,8 +33,8 @@
 */
 #include <Wire.h>
 #include <EEPROM.h>
-#include <Keypad.h>
-#include <LiquidCrystal_I2C.h>
+#include <Keypad.h> //https://github.com/Chris--A/Keypad
+#include <LiquidCrystal_I2C.h> //https://github.com/marcoschwartz/LiquidCrystal_I2C
 
 //Constants
 #define DIGITAL_PIN_RELAY_1 3
@@ -110,12 +110,13 @@ int countKey = 0;
 
 String menuItem[] = 
 {
-    "Setup - Pump 1",
-    "Setup - Pump 2",
-    "Setup - Pump 3",
-    "Setup - Pump 4",
-    "Setup - Time",
-    "Calibrate/Exit *"
+    "8888888888888888"
+    "P1     # -> Save",
+    "P2     # -> Save",
+    "P3     # -> Save",
+    "P4     # -> Save",
+    "Time   # -> Save",
+    "Calib. * -> Exit"
 };
 
 char valueMatrix[MENU_FUNCTION][MENU_VALUE] = 
@@ -173,6 +174,39 @@ void verifyRelay(int calibrationValue, int pumpMatrixIndex, int relayIndex)
         }
       }
 }
+
+void doseNow(int pumpMatrixIndex )
+{
+  int calibrationValue = getSetupValue(MENU_ITEM_CALIBRATION);
+  if(calibrationValue <= 0){
+    calibrationValue = 1;
+  }
+  
+  int relayIndex = DIGITAL_PIN_RELAY_1;
+  if(pumpMatrixIndex == MENU_ITEM_PUMP_2){
+    relayIndex = DIGITAL_PIN_RELAY_2;
+  }
+  if(pumpMatrixIndex == MENU_ITEM_PUMP_3){
+    relayIndex = DIGITAL_PIN_RELAY_3;
+  }
+   if(pumpMatrixIndex == MENU_ITEM_PUMP_4){
+    relayIndex = DIGITAL_PIN_RELAY_4;
+  }
+
+  
+      int pumpValue = getSetupValue(pumpMatrixIndex);
+      if(pumpValue > 0)
+      {
+        float timeInSeconds = ((float)pumpValue*60)/(float)calibrationValue;
+        if(timeInSeconds > 0)
+        {
+          turnOnRelay(relayIndex);
+          delay(timeInSeconds * 1000);
+          turnOffRelay(relayIndex);
+        }
+      }
+}
+
 
 void checkRelayStatus()
 {
@@ -248,19 +282,15 @@ void handlerKeyPress(int keyPress)
 
        if(turnOnPump1){
          turnOnPump1 = false;
-         turnOffRelay(DIGITAL_PIN_RELAY_1);
       }
       if(turnOnPump2){
          turnOnPump2 = false;
-         turnOffRelay(DIGITAL_PIN_RELAY_2);
       }
       if(turnOnPump3){
          turnOnPump3 = false;
-         turnOffRelay(DIGITAL_PIN_RELAY_3);
       }
       if(turnOnPump4){
          turnOnPump4 = false;
-         turnOffRelay(DIGITAL_PIN_RELAY_4);
       }
       
       
@@ -282,32 +312,33 @@ void handlerKeyPress(int keyPress)
       else if(countMenu == MENU_ITEM_PUMP_1)
       {
          if(!turnOnPump1){
-            turnOnPump1 = true;        
-            turnOnRelay(DIGITAL_PIN_RELAY_1);
+            turnOnPump1 = true;   
+            doseNow(MENU_ITEM_PUMP_1);   
          }
       }
       else if(countMenu == MENU_ITEM_PUMP_2)
       {
          if(!turnOnPump2){
             turnOnPump2 = true;        
-            turnOnRelay(DIGITAL_PIN_RELAY_2);
+           doseNow(MENU_ITEM_PUMP_2);
          }
       }
       else if(countMenu == MENU_ITEM_PUMP_3)
       {
          if(!turnOnPump3){
             turnOnPump3 = true;        
-            turnOnRelay(DIGITAL_PIN_RELAY_3);
+            doseNow(MENU_ITEM_PUMP_3);
          }
       }
       else if(countMenu == MENU_ITEM_PUMP_4)
       {
          if(!turnOnPump4){
             turnOnPump4 = true;        
-            turnOnRelay(DIGITAL_PIN_RELAY_4);
+            doseNow(MENU_ITEM_PUMP_4);
          }
       }else{
-        //Come back to The main menu
+        //Save and Come back to The main menu
+         writeMatrixInEEPROM();
         countMenu = MENU_ITEM_MAIN_MENU;
         countKey = 0;
       }
@@ -340,7 +371,7 @@ void printMenuItem(int countMenu)
     lcd.print(String(valueMatrix[countMenu][0]) + String(valueMatrix[countMenu][1]) + String(valueMatrix[countMenu][2])+String(valueMatrix[countMenu][3]) + String(" ml/minute"));
   }else
   {
-    lcd.print(String(valueMatrix[countMenu][0]) + String(valueMatrix[countMenu][1]) + String(valueMatrix[countMenu][2])+String(valueMatrix[countMenu][3]) + String(" ml"));
+    lcd.print(String(valueMatrix[countMenu][0]) + String(valueMatrix[countMenu][1]) + String(valueMatrix[countMenu][2])+String(valueMatrix[countMenu][3]) + String("ml * -> Dose"));
   }
 }
 
