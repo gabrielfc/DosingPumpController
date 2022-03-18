@@ -110,11 +110,10 @@ int countKey = 0;
 
 String menuItem[] = 
 {
-    "8888888888888888"
-    "P1     # -> Save",
-    "P2     # -> Save",
-    "P3     # -> Save",
-    "P4     # -> Save",
+    "Pump 1 # -> Save",
+    "Pump 2 # -> Save",
+    "Pump 3 # -> Save",
+    "Pump 4 # -> Save",
     "Time   # -> Save",
     "Calib. * -> Exit"
 };
@@ -134,6 +133,7 @@ int startingAddress = 30;
 
 void setup()
 {
+  
   lcd.init();
   lcd.createChar(1,iconTerm);
   lcd.createChar(2,iconDrop);
