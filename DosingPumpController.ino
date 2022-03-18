@@ -114,7 +114,7 @@ String menuItem[] =
     "Pump 2 # -> Save",
     "Pump 3 # -> Save",
     "Pump 4 # -> Save",
-    "Time   # -> Save",
+    "Time   # -> Next",
     "Calib. * -> Exit"
 };
 
@@ -243,14 +243,14 @@ void showMainMenu()
   lcd.backlight();
   
   lcd.setCursor(0,0);
-  sprintf(my_array, " %d:%d:%d", hours, minutes, seconds);
+  sprintf(my_array, " %d:%d", hours, minutes);
   lcd.print(my_array);
   lcd.print(' ');
   drawTerm();
   lcd.print(get3231Temp());
   
   lcd.setCursor(0,1);  
-  lcd.print("Menu -> Type #");
+  lcd.print("      # -> Setup");
 }
 
 
@@ -364,8 +364,8 @@ void printMenuItem(int countMenu)
   
   lcd.setCursor(0,1);
   if(countMenu == MENU_ITEM_TIME)
-  {
-    lcd.print(String(valueMatrix[countMenu][0]) + String(valueMatrix[countMenu][1]) + String(":") + String(valueMatrix[countMenu][2])+String(valueMatrix[countMenu][3]));  
+  {                                                                                                                                                                                  
+    lcd.print(String(valueMatrix[countMenu][0]) + String(valueMatrix[countMenu][1]) + String(":") + String(valueMatrix[countMenu][2])+String(valueMatrix[countMenu][3])  + String("  * -> Save"));  
   }else if(countMenu == MENU_ITEM_CALIBRATION)
   {
     lcd.print(String(valueMatrix[countMenu][0]) + String(valueMatrix[countMenu][1]) + String(valueMatrix[countMenu][2])+String(valueMatrix[countMenu][3]) + String(" ml/minute"));
